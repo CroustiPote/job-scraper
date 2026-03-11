@@ -1,136 +1,76 @@
-# 🎨 Job Scraper — Design & Motion Paris
+# 🔍 Job Scraper — Veille emploi automatique
 
-Script Python qui collecte automatiquement chaque matin les offres CDI/CDD en **Graphic Design** et **Motion Design** sur Paris, depuis **Indeed** et **Welcome to the Jungle**.
+Script Python qui collecte automatiquement chaque matin les offres CDI/CDD sur **Indeed** et **LinkedIn**, filtre les résultats selon tes critères, et met à jour un CSV sur GitHub.
 
 ---
 
-## 📋 Ce que fait ce script
+## 📋 Ce que fait ce projet
 
-- 🔍 Cherche sur **Indeed** (via flux RSS) et **Welcome to the Jungle**
-- 🚫 Exclut automatiquement les **stages et alternances**
+- 🔍 Scrape **Indeed** et **LinkedIn** chaque matin
+- 🚫 Exclut automatiquement les **stages et alternances** (et tout ce que tu configures)
 - 🔁 **Déduplique** les offres déjà vues
-- 💾 Stocke tout dans un fichier **CSV** consultable dans Excel/Google Sheets
-- 📧 Peut envoyer un **email récap** chaque matin (optionnel)
-- ⏰ Tourne **automatiquement chaque matin** via GitHub Actions (gratuit)
+- 💾 Stocke tout dans un **CSV** consultable dans Excel / Google Sheets
+- 🌐 **Dashboard web** pour visualiser et gérer les offres
+- ⏰ Tourne **automatiquement** via GitHub Actions (gratuit)
 
 ---
 
-## 🚀 Installation en 4 étapes
+## 🌐 Accéder au dashboard
 
-### Étape 1 — Installer Python
-
-Télécharge et installe Python depuis [python.org](https://www.python.org/downloads/)  
-✅ Coche bien **"Add Python to PATH"** pendant l'installation.
-
-Vérifie l'installation en ouvrant un terminal :
-```bash
-python --version
-# Doit afficher : Python 3.11.x
-```
+👉 **[Ouvrir le dashboard](https://croustipote.github.io/job-scraper/dashboard.html)**
 
 ---
 
-### Étape 2 — Installer les dépendances
+## 🚀 Installation
 
-Dans le dossier du projet, ouvre un terminal et exécute :
-```bash
-pip install -r requirements.txt
-```
-
----
-
-### Étape 3 — Premier lancement (test local)
+### 1 — Installer Python 3.11
 
 ```bash
-python job_scraper.py
+brew install python@3.11   # Mac
 ```
 
-Le script va créer un fichier `offres_emploi.csv` dans le même dossier.  
-Tu peux l'ouvrir directement dans **Excel** ou **Google Sheets**.
+Ou télécharge sur [python.org](https://www.python.org/downloads/) (Windows).
 
----
+### 2 — Installer les dépendances
 
-### Étape 4 — Automatisation via GitHub (tourne tous les matins)
-
-#### 4a. Créer un compte GitHub
-Inscris-toi sur [github.com](https://github.com) (gratuit).
-
-#### 4b. Créer un nouveau dépôt
-1. Clique sur **"New repository"**
-2. Nomme-le `job-scraper`
-3. Coche **"Private"** (pour garder tes données privées)
-4. Clique **"Create repository"**
-
-#### 4c. Uploader les fichiers
-Depuis ton terminal, dans le dossier du projet :
 ```bash
-git init
-git add .
-git commit -m "🚀 Initial commit"
-git branch -M main
-git remote add origin https://github.com/TON_USERNAME/job-scraper.git
-git push -u origin main
+python3.11 -m pip install python-jobspy requests beautifulsoup4 lxml feedparser
 ```
 
-#### 4d. Activer GitHub Actions
-1. Va dans ton repo GitHub → onglet **"Actions"**
-2. Le workflow `daily_scraper.yml` sera détecté automatiquement
-3. Clique **"Enable"**
-4. Pour tester : clique **"Run workflow"** manuellement
+### 3 — Lancer le script
 
-➡️ **C'est tout !** Le script tournera désormais chaque matin à 8h.
+```bash
+python3.11 job_scraper.py
+```
+
+Un fichier `offres_emploi.csv` est créé dans le dossier.
 
 ---
 
-## 📧 Activer les emails récap (optionnel)
+## ⚙️ Configuration
 
-### Avec Gmail :
-1. Active la **vérification en 2 étapes** sur ton compte Google
-2. Va dans **Sécurité → Mots de passe des applications**
-3. Crée un mot de passe pour "Job Scraper"
-
-### Dans `job_scraper.py`, modifie :
-```python
-"email": {
-    "enabled": True,              # ← Changer False en True
-    "sender": "ton.email@gmail.com",
-    "password": "xxxx xxxx xxxx xxxx",  # ← Mot de passe d'application
-    "recipient": "ton.email@gmail.com",
-}
-```
-
-### Pour GitHub Actions, ajoute des Secrets :
-1. Repo GitHub → **Settings → Secrets → Actions**
-2. Ajoute :
-   - `EMAIL_SENDER` = ton email
-   - `EMAIL_PASSWORD` = mot de passe d'application
-   - `EMAIL_RECIPIENT` = où recevoir les récaps
-
----
-
-## 🔧 Personnalisation
-
-### Ajouter/supprimer des mots-clés
 Dans `job_scraper.py`, section `CONFIG` :
+
 ```python
 "keywords": [
     "motion designer",
     "graphiste",
-    "directeur artistique",
-    # Ajoute tes propres mots-clés ici
-    "brand designer",
-    "ui designer",
+    # Ajoute tes mots-clés ici
 ],
-```
 
-### Ajouter des mots à exclure
-```python
 "exclude_keywords": [
     "stage", "alternance",
-    # Ajoute ici des mots pour filtrer des offres non pertinentes
-    "junior",  # Si tu ne veux pas les postes junior
+    # Ajoute les mots à exclure ici
 ],
+
+"location": "Paris, France",
 ```
+
+---
+
+## ⏰ Automatisation (GitHub Actions)
+
+Le workflow `.github/workflows/daily_scraper.yml` tourne automatiquement **du lundi au vendredi à 8h** et met à jour le CSV sur GitHub.
 
 ---
 
@@ -138,32 +78,12 @@ Dans `job_scraper.py`, section `CONFIG` :
 
 | Colonne | Description |
 |---------|-------------|
-| `id` | Identifiant unique de l'offre |
+| `id` | Identifiant unique |
 | `date_ajout` | Date de découverte |
 | `titre` | Intitulé du poste |
 | `entreprise` | Nom de l'entreprise |
 | `lieu` | Ville |
 | `contrat` | CDI / CDD |
-| `source` | Indeed / WTTJ |
+| `source` | Indeed / Linkedin |
 | `lien` | Lien direct vers l'offre |
 | `description_courte` | Extrait de la description |
-
----
-
-## ❓ Problèmes fréquents
-
-**"Module not found"** → Relance `pip install -r requirements.txt`
-
-**Le CSV est vide** → Indeed et WTTJ peuvent bloquer temporairement les requêtes. Réessaie plus tard.
-
-**GitHub Actions ne tourne pas** → Vérifie que le repo est bien public ou que GitHub Actions est activé dans les Settings.
-
----
-
-## 📬 Aller plus loin
-
-Une fois à l'aise, tu peux :
-- Ajouter **Airtable** comme base de données (plus visuel qu'un CSV)
-- Intégrer **LinkedIn Jobs** (nécessite une session authentifiée)
-- Ajouter **Apec** ou **Cadremploi**
-- Créer un mini **dashboard web** pour visualiser les offres

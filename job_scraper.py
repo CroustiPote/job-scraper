@@ -399,10 +399,7 @@ def main():
         print(f"     {len(j)} nouvelle(s) offre(s)")
         all_new_jobs.extend(j)
 
-        print("  → Welcome to the Jungle...")
-        w = scrape_wttj(keyword, existing_ids)
-        print(f"     {len(w)} nouvelle(s) offre(s)")
-        all_new_jobs.extend(w)
+
 
     print(f"\n💾 Sauvegarde...")
     if all_new_jobs:

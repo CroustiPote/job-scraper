@@ -272,11 +272,9 @@
 
   [data-theme="dark"] .source-Indeed   { background: #1a2a1a; color: #60c060; border: 1px solid #2a3a2a; }
   [data-theme="dark"] .source-Linkedin { background: #1a1e2a; color: #6090e0; border: 1px solid #2a2e3a; }
-  [data-theme="dark"] .source-WTTJ     { background: #2a1a1a; color: #e06060; border: 1px solid #3a2a2a; }
 
   [data-theme="light"] .source-Indeed   { background: #e8f5e8; color: #1a7a1a; border: 1px solid #b8ddb8; }
   [data-theme="light"] .source-Linkedin { background: #e8eef8; color: #1a4aaa; border: 1px solid #b8cce8; }
-  [data-theme="light"] .source-WTTJ     { background: #fce8e8; color: #cc2222; border: 1px solid #f0b8b8; }
 
   .card-company {
     font-size: 13px;
@@ -747,7 +745,7 @@ function render() {
     if (search && !text.includes(search)) return false;
     if (currentFilter === 'applied') return applied.has(j.id);
     if (currentFilter === 'new') return j.date_ajout === today;
-    if (['Indeed', 'Linkedin', 'WTTJ'].includes(currentFilter)) return j.source === currentFilter;
+    if (['Indeed', 'Linkedin'].includes(currentFilter)) return j.source === currentFilter;
     return true;
   });
 

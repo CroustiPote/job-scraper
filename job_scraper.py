@@ -142,7 +142,7 @@ def scrape_jobspy(keyword, existing_ids):
     try:
         from jobspy import scrape_jobs
         results = scrape_jobs(
-            site_name=["indeed", "linkedin"],
+            site_name=["indeed", "linkedin", "google"],
             search_term=keyword,
             location="Paris, France",
             results_wanted=20,

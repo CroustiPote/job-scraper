@@ -64,7 +64,7 @@ CONFIG = {
         "assistant administratif", "juriste", "office manager",
         # Hors scope creatif
         "photographe", "videaste", "cameraman",
-        "monteur video", "realisateur", "chef operateur",
+        "monteur video", "realisateur", "chef operateur", "chef de projet", "directeur engineering", "directeur adjoint", "territorial",
         # Regisseurs
         "regisseur", "regisseure", "regisseurs",
     ],

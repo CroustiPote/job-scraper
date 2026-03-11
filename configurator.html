@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JobScraper — Configurateur</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f5f0;
+    --surface: #ffffff;
+    --border: #e2ddd6;
+    --accent: #1a1a2e;
+    --accent2: #e84545;
+    --text: #1a1a2e;
+    --muted: #9a9490;
+    --tag-bg: #1a1a2e;
+    --tag-text: #f7f5f0;
+    --step-done: #22c55e;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: var(--accent);
+    color: var(--bg);
+    padding: 64px 48px 56px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    right: -80px; top: -80px;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.03);
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    right: 60px; bottom: -120px;
+    width: 280px; height: 280px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+  }
+
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(247,245,240,0.45);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 800;
+    line-height: 1.05;
+    margin-bottom: 20px;
+    letter-spacing: -1.5px;
+  }
+
+  .hero h1 em {
+    font-style: normal;
+    color: #f0e040;
+  }
+
+  .hero p {
+    font-size: 16px;
+    color: rgba(247,245,240,0.65);
+    max-width: 520px;
+    line-height: 1.6;
+  }
+
+  /* ── STEPS INDICATOR ── */
+  .steps-bar {
+    display: flex;
+    gap: 0;
+    padding: 0 48px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .step-tab {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 18px 24px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+    cursor: default;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .step-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .step-tab.done { color: var(--step-done); }
+
+  .step-num {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--border);
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  .step-tab.active .step-num { background: var(--accent); color: var(--bg); }
+  .step-tab.done .step-num { background: var(--step-done); color: white; }
+  .step-tab.done .step-num::before { content: '✓'; }
+
+  /* ── MAIN ── */
+  .main { max-width: 780px; margin: 0 auto; padding: 48px 48px 80px; }
+
+  .step-panel { display: none; }
+  .step-panel.active { display: block; }
+
+  /* ── SECTION TITLES ── */
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+
+  .section-sub {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 36px;
+    line-height: 1.5;
+  }
+
+  /* ── FORM FIELDS ── */
+  .field { margin-bottom: 28px; }
+
+  .field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    letter-spacing: 0.2px;
+  }
+
+  .field label span {
+    font-weight: 300;
+    color: var(--muted);
+    font-size: 12px;
+    margin-left: 6px;
+  }
+
+  .field input, .field textarea, .field select {
+    width: 100%;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .field input:focus, .field textarea:focus, .field select:focus {
+    border-color: var(--accent);
+  }
+
+  .field textarea { min-height: 80px; resize: vertical; }
+
+  /* ── TAG INPUT ── */
+  .tag-input-wrap {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    cursor: text;
+    transition: border-color 0.2s;
+    min-height: 52px;
+  }
+
+  .tag-input-wrap:focus-within { border-color: var(--accent); }
+
+  .tag {
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    animation: tagIn 0.15s ease;
+  }
+
+  @keyframes tagIn { from { opacity:0; transform: scale(0.85); } to { opacity:1; transform: scale(1); } }
+
+  .tag.exclude { background: #fee2e2; color: #991b1b; }
+
+  .tag button {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 0;
+    font-size: 14px;
+    opacity: 0.6;
+    line-height: 1;
+    transition: opacity 0.15s;
+  }
+
+  .tag button:hover { opacity: 1; }
+
+  .tag-input {
+    border: none !important;
+    outline: none;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    padding: 4px 4px !important;
+    flex: 1;
+    min-width: 140px;
+    width: auto !important;
+  }
+
+  .field-hint {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 7px;
+    line-height: 1.4;
+  }
+
+  /* ── SUGGESTIONS ── */
+  .suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .sug-btn {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .sug-btn:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+
+  /* ── DIVIDER ── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 32px 0;
+  }
+
+  /* ── NAV BUTTONS ── */
+  .nav-btns {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  .btn-prev {
+    background: transparent;
+    border: 1.5px solid var(--border);
+    color: var(--muted);
+    padding: 12px 24px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    transition: all 0.15s;
+  }
+
+  .btn-prev:hover { border-color: var(--accent); color: var(--accent); }
+
+  .btn-next {
+    background: var(--accent);
+    border: none;
+    color: var(--bg);
+    padding: 13px 32px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-next:hover { opacity: 0.88; transform: translateY(-1px); }
+
+  /* ── SUMMARY ── */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .summary-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  .summary-card h4 {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .summary-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .summary-tag {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 3px 10px;
+    border-radius: 5px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text);
+  }
+
+  .summary-tag.excl { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+
+  .summary-val {
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  /* ── DOWNLOAD AREA ── */
+  .download-area {
+    background: var(--accent);
+    color: var(--bg);
+    border-radius: 16px;
+    padding: 36px;
+    text-align: center;
+    margin-top: 8px;
+  }
+
+  .download-area h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .download-area p {
+    font-size: 14px;
+    opacity: 0.65;
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+
+  .btn-download {
+    background: #f0e040;
+    color: var(--accent);
+    border: none;
+    padding: 14px 36px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .btn-download:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+
+  /* ── NEXT STEPS ── */
+  .next-steps {
+    margin-top: 36px;
+  }
+
+  .next-steps h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+
+  .step-item {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 10px;
+  }
+
+  .step-icon {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    color: var(--bg);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .step-item h4 { font-size: 14px; font-weight: 500; margin-bottom: 3px; }
+  .step-item p  { font-size: 12px; color: var(--muted); line-height: 1.4; }
+  .step-item code {
+    font-family: 'DM Mono', monospace;
+    background: var(--bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+  }
+
+  /* ── RADIO GROUP ── */
+  .radio-group { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .radio-card {
+    flex: 1;
+    min-width: 120px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+  }
+
+  .radio-card:hover { border-color: var(--accent); }
+  .radio-card.selected { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 6%, white); }
+  .radio-card .radio-dot {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .radio-card.selected .radio-dot { border-color: var(--accent); background: var(--accent); }
+  .radio-card.selected .radio-dot::after { content: ''; width: 6px; height: 6px; background: white; border-radius: 50%; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-label">Outil de veille emploi</div>
+  <h1>Configure ton<br><em>Job Scraper</em><br>en 3 minutes</h1>
+  <p>Remplis le formulaire, télécharge ton script Python personnalisé. Il tournera automatiquement chaque matin et collectera les offres qui t'intéressent.</p>
+</div>
+
+<!-- Steps bar -->
+<div class="steps-bar">
+  <div class="step-tab active" id="tab-1">
+    <div class="step-num">1</div> Ton profil
+  </div>
+  <div class="step-tab" id="tab-2">
+    <div class="step-num">2</div> Mots-clés
+  </div>
+  <div class="step-tab" id="tab-3">
+    <div class="step-num">3</div> Exclusions
+  </div>
+  <div class="step-tab" id="tab-4">
+    <div class="step-num">4</div> Télécharger
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- ── STEP 1 : PROFIL ── -->
+  <div class="step-panel active" id="panel-1">
+    <div class="section-title">Ton profil de recherche</div>
+    <div class="section-sub">Ces informations personnalisent ton script. Tu pourras tout modifier plus tard directement dans le fichier.</div>
+
+    <div class="field">
+      <label>Ville / Région <span>obligatoire</span></label>
+      <input type="text" id="location" placeholder="Paris, Lyon, Bordeaux, France..." value="Paris, France">
+    </div>
+
+    <div class="field">
+      <label>Rayon de recherche</label>
+      <div class="radio-group" id="radius-group">
+        <div class="radio-card" onclick="selectRadio('radius', '10', this)"><div class="radio-dot"></div>10 km</div>
+        <div class="radio-card selected" onclick="selectRadio('radius', '20', this)"><div class="radio-dot"></div>20 km</div>
+        <div class="radio-card" onclick="selectRadio('radius', '50', this)"><div class="radio-dot"></div>50 km</div>
+        <div class="radio-card" onclick="selectRadio('radius', '100', this)"><div class="radio-dot"></div>100 km</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Types de contrats</label>
+      <div class="radio-group" id="contract-group">
+        <div class="radio-card selected" onclick="selectRadio('contract', 'CDI_CDD', this)"><div class="radio-dot"></div>CDI + CDD</div>
+        <div class="radio-card" onclick="selectRadio('contract', 'CDI', this)"><div class="radio-dot"></div>CDI uniquement</div>
+        <div class="radio-card" onclick="selectRadio('contract', 'CDD', this)"><div class="radio-dot"></div>CDD uniquement</div>
+        <div class="radio-card" onclick="selectRadio('contract', 'ALL', this)"><div class="radio-dot"></div>Tous types</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Offres des derniers… <span>combien de jours en arrière</span></label>
+      <div class="radio-group" id="days-group">
+        <div class="radio-card" onclick="selectRadio('days', '1', this)"><div class="radio-dot"></div>1 jour</div>
+        <div class="radio-card selected" onclick="selectRadio('days', '3', this)"><div class="radio-dot"></div>3 jours</div>
+        <div class="radio-card" onclick="selectRadio('days', '7', this)"><div class="radio-dot"></div>7 jours</div>
+        <div class="radio-card" onclick="selectRadio('days', '14', this)"><div class="radio-dot"></div>14 jours</div>
+      </div>
+    </div>
+
+    <div class="nav-btns">
+      <div></div>
+      <button class="btn-next" onclick="goTo(2)">Suivant — Mots-clés →</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 2 : MOTS-CLÉS ── -->
+  <div class="step-panel" id="panel-2">
+    <div class="section-title">Mots-clés de recherche</div>
+    <div class="section-sub">Ces termes seront cherchés sur Indeed et LinkedIn. Ajoute tous les titres de poste qui correspondent à ce que tu cherches.</div>
+
+    <div class="field">
+      <label>Tes mots-clés <span>tape un mot et appuie sur Entrée</span></label>
+      <div class="tag-input-wrap" id="keywords-wrap" onclick="document.getElementById('kw-input').focus()">
+        <input type="text" class="tag-input" id="kw-input" placeholder="Ajoute un mot-clé...">
+      </div>
+      <div class="field-hint">💡 Utilise les suggestions ci-dessous ou tape tes propres termes</div>
+    </div>
+
+    <div class="field">
+      <label>Suggestions rapides <span>clique pour ajouter</span></label>
+      <div class="suggestions" id="kw-suggestions"></div>
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn-prev" onclick="goTo(1)">← Retour</button>
+      <button class="btn-next" onclick="goTo(3)">Suivant — Exclusions →</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 3 : EXCLUSIONS ── -->
+  <div class="step-panel" id="panel-3">
+    <div class="section-title">Mots à exclure</div>
+    <div class="section-sub">Tout offre contenant un de ces mots sera automatiquement ignorée. Utile pour filtrer les stages, alternances, ou métiers hors-cible.</div>
+
+    <div class="field">
+      <label>Mots exclus <span>tape un mot et appuie sur Entrée</span></label>
+      <div class="tag-input-wrap" id="exclude-wrap" onclick="document.getElementById('ex-input').focus()">
+        <input type="text" class="tag-input" id="ex-input" placeholder="Ajoute un mot à exclure...">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Exclusions communes <span>clique pour ajouter</span></label>
+      <div class="suggestions">
+        <div class="sug-btn" onclick="addExclude('stage')">stage</div>
+        <div class="sug-btn" onclick="addExclude('alternance')">alternance</div>
+        <div class="sug-btn" onclick="addExclude('stagiaire')">stagiaire</div>
+        <div class="sug-btn" onclick="addExclude('alternant')">alternant</div>
+        <div class="sug-btn" onclick="addExclude('apprenti')">apprenti</div>
+        <div class="sug-btn" onclick="addExclude('internship')">internship</div>
+        <div class="sug-btn" onclick="addExclude('commercial')">commercial</div>
+        <div class="sug-btn" onclick="addExclude('développeur')">développeur</div>
+        <div class="sug-btn" onclick="addExclude('recruteur')">recruteur</div>
+        <div class="sug-btn" onclick="addExclude('comptable')">comptable</div>
+        <div class="sug-btn" onclick="addExclude('juriste')">juriste</div>
+        <div class="sug-btn" onclick="addExclude('photographe')">photographe</div>
+      </div>
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn-prev" onclick="goTo(2)">← Retour</button>
+      <button class="btn-next" onclick="goTo(4)">Voir le récap →</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 4 : DOWNLOAD ── -->
+  <div class="step-panel" id="panel-4">
+    <div class="section-title">Prêt à télécharger !</div>
+    <div class="section-sub">Voici un résumé de ta configuration. Télécharge ton script Python personnalisé.</div>
+
+    <div class="summary-grid" id="summary"></div>
+
+    <div class="download-area">
+      <h3>📦 Ton script est prêt</h3>
+      <p>Télécharge <code style="background:rgba(255,255,255,0.15);padding:2px 8px;border-radius:4px;font-family:monospace">job_scraper.py</code> et suis le guide d'installation pour l'automatiser.</p>
+      <button class="btn-download" onclick="downloadScript()">⬇ Télécharger job_scraper.py</button>
+    </div>
+
+    <div class="next-steps">
+      <h3>Et ensuite ?</h3>
+
+      <div class="step-item">
+        <div class="step-icon">🐍</div>
+        <div>
+          <h4>Installe Python 3.11</h4>
+          <p>Télécharge Python sur <strong>python.org</strong> — coche "Add to PATH" pendant l'install.</p>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-icon">📦</div>
+        <div>
+          <h4>Installe les dépendances</h4>
+          <p>Dans le Terminal (Mac) ou PowerShell (Windows), lance :</p>
+          <p style="margin-top:6px"><code>pip3 install python-jobspy requests beautifulsoup4 lxml feedparser</code></p>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-icon">▶️</div>
+        <div>
+          <h4>Lance le script</h4>
+          <p>Place <code>job_scraper.py</code> dans un dossier, puis dans le terminal :</p>
+          <p style="margin-top:6px"><code>python3.11 job_scraper.py</code></p>
+          <p style="margin-top:4px">Un fichier <code>offres_emploi.csv</code> sera créé avec toutes les offres.</p>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-icon">⏰</div>
+        <div>
+          <h4>Automatise avec GitHub Actions</h4>
+          <p>Pour que le script tourne tout seul chaque matin, crée un compte gratuit sur <strong>github.com</strong> et contacte la personne qui t'a partagé cet outil pour le guide complet.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn-prev" onclick="goTo(3)">← Retour</button>
+      <div></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── STATE ──
+let keywords = [];
+let excludes = [];
+let config = {
+  location: 'Paris, France',
+  radius: '20',
+  contract: 'CDI_CDD',
+  days: '3',
+};
+
+// ── SUGGESTIONS PAR DOMAINE ──
+const SUGGESTIONS = {
+  default: [
+    'motion designer','graphiste','directeur artistique','graphic designer',
+    'développeur web','chef de projet','product manager','UX designer',
+    'data analyst','commercial','infirmier','comptable','architecte',
+    'ingénieur','community manager','rédacteur','traducteur',
+  ]
+};
+
+// ── INIT ──
+window.addEventListener('DOMContentLoaded', () => {
+  setupTagInput('kw-input', 'keywords-wrap', keywords, false);
+  setupTagInput('ex-input', 'exclude-wrap', excludes, true);
+
+  // Suggestions
+  const sugEl = document.getElementById('kw-suggestions');
+  SUGGESTIONS.default.forEach(s => {
+    const btn = document.createElement('div');
+    btn.className = 'sug-btn';
+    btn.textContent = s;
+    btn.onclick = () => addKeyword(s);
+    sugEl.appendChild(btn);
+  });
+
+  // Pré-remplir exclusions communes
+  ['stage','stagiaire','alternance','alternant','apprenti','internship'].forEach(w => addExclude(w));
+});
+
+// ── RADIO ──
+function selectRadio(group, value, el) {
+  const wrap = document.getElementById(group + '-group');
+  wrap.querySelectorAll('.radio-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  config[group] = value;
+}
+
+// ── TAG INPUT ──
+function setupTagInput(inputId, wrapId, arr, isExclude) {
+  const input = document.getElementById(inputId);
+  input.addEventListener('keydown', e => {
+    if ((e.key === 'Enter' || e.key === ',') && input.value.trim()) {
+      e.preventDefault();
+      const val = input.value.trim().replace(/,$/, '');
+      if (val) {
+        isExclude ? addExclude(val) : addKeyword(val);
+        input.value = '';
+      }
+    }
+    if (e.key === 'Backspace' && !input.value && arr.length) {
+      arr.pop();
+      renderTags(wrapId, arr, inputId, isExclude);
+    }
+  });
+}
+
+function addKeyword(val) {
+  const v = val.trim().toLowerCase();
+  if (!v || keywords.includes(v)) return;
+  keywords.push(v);
+  renderTags('keywords-wrap', keywords, 'kw-input', false);
+}
+
+function addExclude(val) {
+  const v = val.trim().toLowerCase();
+  if (!v || excludes.includes(v)) return;
+  excludes.push(v);
+  renderTags('exclude-wrap', excludes, 'ex-input', true);
+}
+
+function removeTag(arr, idx, wrapId, inputId, isExclude) {
+  arr.splice(idx, 1);
+  renderTags(wrapId, arr, inputId, isExclude);
+}
+
+function renderTags(wrapId, arr, inputId, isExclude) {
+  const wrap = document.getElementById(wrapId);
+  const input = document.getElementById(inputId);
+  wrap.innerHTML = '';
+  arr.forEach((t, i) => {
+    const tag = document.createElement('div');
+    tag.className = 'tag' + (isExclude ? ' exclude' : '');
+    tag.innerHTML = `${t}<button onclick="removeTag(${isExclude ? 'excludes' : 'keywords'}, ${i}, '${wrapId}', '${inputId}', ${isExclude})">×</button>`;
+    wrap.appendChild(tag);
+  });
+  wrap.appendChild(input);
+  input.focus();
+}
+
+// ── NAVIGATION ──
+function goTo(step) {
+  if (step === 2 && !document.getElementById('location').value.trim()) {
+    alert('Merci d\'entrer une ville ou région.');
+    return;
+  }
+  if (step === 4 && keywords.length === 0) {
+    alert('Ajoute au moins un mot-clé de recherche.');
+    goTo(2);
+    return;
+  }
+
+  config.location = document.getElementById('location').value.trim() || 'Paris, France';
+
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById('panel-' + i).classList.toggle('active', i === step);
+    const tab = document.getElementById('tab-' + i);
+    tab.classList.toggle('active', i === step);
+    tab.classList.toggle('done', i < step);
+  }
+
+  if (step === 4) buildSummary();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── SUMMARY ──
+function buildSummary() {
+  const contractLabels = { CDI_CDD: 'CDI + CDD', CDI: 'CDI seulement', CDD: 'CDD seulement', ALL: 'Tous types' };
+  const el = document.getElementById('summary');
+  el.innerHTML = `
+    <div class="summary-card">
+      <h4>📍 Localisation</h4>
+      <div class="summary-val">${config.location}</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:4px">Rayon : ${config.radius} km · ${contractLabels[config.contract]}</div>
+    </div>
+    <div class="summary-card">
+      <h4>📅 Période</h4>
+      <div class="summary-val">Offres des ${config.days} dernier${config.days > 1 ? 's' : ''} jour${config.days > 1 ? 's' : ''}</div>
+    </div>
+    <div class="summary-card" style="grid-column: span 2">
+      <h4>🔍 ${keywords.length} mot${keywords.length > 1 ? 's' : ''}-clé${keywords.length > 1 ? 's' : ''}</h4>
+      <div class="summary-tags">${keywords.map(k => `<span class="summary-tag">${k}</span>`).join('')}</div>
+    </div>
+    <div class="summary-card" style="grid-column: span 2">
+      <h4>🚫 ${excludes.length} exclusion${excludes.length > 1 ? 's' : ''}</h4>
+      <div class="summary-tags">${excludes.map(k => `<span class="summary-tag excl">${k}</span>`).join('')}</div>
+    </div>`;
+}
+
+// ── GENERATE SCRIPT ──
+function generateScript() {
+  const contractFilter = config.contract === 'ALL'
+    ? '# Pas de filtre de contrat'
+    : config.contract === 'CDI'
+    ? '"full_time"'
+    : config.contract === 'CDD'
+    ? '"fixed_term"'
+    : '"full_time", "fixed_term"';
+
+  const kwList = keywords.map(k => `        "${k}"`).join(',\n');
+  const exList = excludes.map(k => `        "${k}"`).join(',\n');
+
+  return `"""
+╔══════════════════════════════════════════════════════╗
+║              🔍 JOB SCRAPER PERSONNALISÉ             ║
+║         Généré sur https://croustipote.github.io     ║
+╚══════════════════════════════════════════════════════╝
+
+Usage :
+    python3.11 job_scraper.py           → lancement normal
+    python3.11 job_scraper.py --debug   → test des sources
+
+Dépendances :
+    pip3 install python-jobspy requests beautifulsoup4 lxml feedparser
+"""
+
+import csv, os, smtplib, hashlib, sys, requests, feedparser
+from datetime import datetime, date
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from time import sleep
+from bs4 import BeautifulSoup
+
+# ═══════════════════════════════════════════════════════
+# ⚙️  CONFIGURATION
+# ═══════════════════════════════════════════════════════
+
+CONFIG = {
+    "csv_file": "offres_emploi.csv",
+
+    "keywords": [
+${kwList}
+    ],
+
+    "exclude_keywords": [
+${exList}
+    ],
+
+    "location": "${config.location}",
+    "radius": ${config.radius},
+    "hours_old": ${parseInt(config.days) * 24},
+
+    "email": {
+        "enabled": False,
+        "smtp_server": "smtp.gmail.com",
+        "smtp_port": 587,
+        "sender": "ton.email@gmail.com",
+        "password": "ton_mot_de_passe_app",
+        "recipient": "ton.email@gmail.com",
+    },
+}
+
+HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+    ),
+    "Accept-Language": "fr-FR,fr;q=0.9",
+}
+
+def generate_id(title, company):
+    raw = f"{title.lower().strip()}{company.lower().strip()}"
+    return hashlib.md5(raw.encode()).hexdigest()[:12]
+
+def load_existing_ids(csv_file):
+    ids = set()
+    if os.path.exists(csv_file):
+        with open(csv_file, "r", encoding="utf-8") as f:
+            for row in csv.DictReader(f):
+                ids.add(row.get("id", ""))
+    return ids
+
+def is_excluded(text):
+    t = text.lower()
+    return any(kw in t for kw in CONFIG["exclude_keywords"])
+
+def save_jobs(jobs, csv_file):
+    fieldnames = ["id", "date_ajout", "titre", "entreprise", "lieu",
+                  "contrat", "source", "lien", "description_courte"]
+    file_exists = os.path.exists(csv_file)
+    with open(csv_file, "a", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        if not file_exists:
+            writer.writeheader()
+        writer.writerows(jobs)
+    print(f"  ✅ {len(jobs)} nouvelle(s) offre(s) sauvegardée(s)")
+
+def make_job(job_id, titre, entreprise, lieu, contrat, source, lien, desc=""):
+    return {
+        "id": job_id,
+        "date_ajout": date.today().isoformat(),
+        "titre": titre,
+        "entreprise": entreprise,
+        "lieu": lieu,
+        "contrat": contrat,
+        "source": source,
+        "lien": lien,
+        "description_courte": str(desc)[:200].replace("\\n", " "),
+    }
+
+def scrape_jobspy(keyword, existing_ids):
+    jobs = []
+    try:
+        from jobspy import scrape_jobs
+        results = scrape_jobs(
+            site_name=["indeed", "linkedin"],
+            search_term=keyword,
+            location=CONFIG["location"],
+            results_wanted=25,
+            hours_old=CONFIG["hours_old"],
+            country_indeed="France",
+            linkedin_fetch_description=False,
+            verbose=0,
+        )
+        if results is None or results.empty:
+            return jobs
+
+        for _, row in results.iterrows():
+            title    = str(row.get("title", "") or "")
+            company  = str(row.get("company", "") or "Inconnue")
+            job_type = str(row.get("job_type", "") or "")
+            desc     = str(row.get("description", "") or "")
+            link     = str(row.get("job_url", "") or "")
+            source   = str(row.get("site", "") or "").capitalize()
+
+            if is_excluded(title + " " + job_type + " " + desc[:400]):
+                continue
+
+            job_id = generate_id(title, company)
+            if job_id in existing_ids:
+                continue
+            existing_ids.add(job_id)
+
+            jt = job_type.lower()
+            contrat = ("CDI" if any(x in jt for x in ["full", "permanent"])
+                       else "CDD" if any(x in jt for x in ["fixed", "contract", "cdd"])
+                       else "CDI/CDD")
+
+            jobs.append(make_job(job_id, title, company, CONFIG["location"], contrat, source, link, desc))
+
+    except ImportError:
+        print("  ⚠️  python-jobspy non installé — pip3 install python-jobspy")
+    except Exception as e:
+        print(f"  ⚠️  Erreur jobspy ({keyword}) : {e}")
+    return jobs
+
+def debug_sources():
+    print("\\n🔧 MODE DEBUG\\n")
+    try:
+        from jobspy import scrape_jobs
+        print("✅ python-jobspy installé")
+        kw = CONFIG["keywords"][0] if CONFIG["keywords"] else "développeur"
+        print(f"   Test avec : '{kw}' (10-15s)...")
+        r = scrape_jobs(site_name=["indeed", "linkedin"], search_term=kw,
+                        location=CONFIG["location"], results_wanted=3,
+                        country_indeed="France", verbose=0)
+        nb = len(r) if r is not None else 0
+        print(f"   → {nb} résultat(s)")
+        if nb > 0:
+            print(f"   Exemple : {r.iloc[0]['title']} @ {r.iloc[0]['company']}")
+    except ImportError:
+        print("❌ python-jobspy non installé")
+        print("   → pip3 install python-jobspy")
+    except Exception as e:
+        print(f"⚠️  Erreur : {e}")
+
+def main():
+    print("=" * 55)
+    print("  🔍 JOB SCRAPER PERSONNALISÉ")
+    print(f"  📅 {datetime.now().strftime('%d/%m/%Y %H:%M')}")
+    print(f"  📍 {CONFIG['location']}")
+    print("=" * 55)
+
+    existing_ids = load_existing_ids(CONFIG["csv_file"])
+    print(f"\\n📂 {len(existing_ids)} offres déjà en base\\n")
+
+    all_new_jobs = []
+
+    for keyword in CONFIG["keywords"]:
+        print(f"\\n🔍 « {keyword} »")
+        jobs = scrape_jobspy(keyword, existing_ids)
+        print(f"   {len(jobs)} nouvelle(s) offre(s)")
+        all_new_jobs.extend(jobs)
+        sleep(1)
+
+    print(f"\\n💾 Sauvegarde...")
+    if all_new_jobs:
+        save_jobs(all_new_jobs, CONFIG["csv_file"])
+    else:
+        print("  Aucune nouvelle offre aujourd'hui.")
+
+    total = len(load_existing_ids(CONFIG["csv_file"]))
+    print(f"\\n{'=' * 55}")
+    print(f"  ✅ {len(all_new_jobs)} nouvelles offres ajoutées")
+    print(f"  📊 Total en base : {total} offres")
+    print(f"  📂 Fichier : {CONFIG['csv_file']}")
+    print("=" * 55)
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] == "--debug":
+        debug_sources()
+    else:
+        main()
+`;
+}
+
+// ── DOWNLOAD ──
+function downloadScript() {
+  if (keywords.length === 0) {
+    alert('Ajoute au moins un mot-clé avant de télécharger.');
+    return;
+  }
+  const script = generateScript();
+  const blob = new Blob([script], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'job_scraper.py';
+  a.click();
+}
+</script>
+</body>
+</html>

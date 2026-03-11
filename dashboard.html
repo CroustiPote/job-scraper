@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job Board — Design & Motion Paris</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e0f;
+    --surface: #161618;
+    --surface2: #1e1e21;
+    --border: #2a2a2e;
+    --accent: #c8f060;
+    --accent2: #f060a8;
+    --text: #e8e8e6;
+    --muted: #666668;
+    --applied: #60f0a8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 72px;
+    position: sticky;
+    top: 0;
+    background: rgba(14,14,15,0.92);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo span {
+    background: var(--accent);
+    color: #0e0e0f;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 3px;
+    letter-spacing: 0.5px;
+  }
+
+  .stats {
+    display: flex;
+    gap: 32px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .stats strong { color: var(--accent); font-size: 18px; display: block; }
+
+  /* ── CONTROLS ── */
+  .controls {
+    padding: 16px 40px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .search-wrap {
+    flex: 1;
+    min-width: 200px;
+    position: relative;
+  }
+
+  .search-wrap input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 9px 16px 9px 38px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-wrap input:focus { border-color: var(--accent); }
+  .search-wrap::before {
+    content: '⌕';
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 18px;
+  }
+
+  .filter-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #0e0e0f; font-weight: 500; }
+
+  /* Vue toggle */
+  .view-toggle {
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 4px;
+    margin-left: auto;
+  }
+
+  .view-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.15s;
+    line-height: 1;
+  }
+
+  .view-btn.active { background: var(--surface2); color: var(--accent); }
+
+  /* ── CONTAINER ── */
+  .container { padding: 28px 40px; }
+
+  .date-section { margin-bottom: 36px; }
+
+  .date-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── CARD VIEW ── */
+  .jobs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 14px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s;
+  }
+
+  .card:hover { border-color: #3a3a3e; transform: translateY(-2px); }
+  .card:hover::before { transform: scaleX(1); }
+  .card.applied { border-color: var(--applied); opacity: 0.65; }
+  .card.applied::before { background: var(--applied); transform: scaleX(1); }
+
+  .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+
+  .card-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 16px;
+    line-height: 1.3;
+    color: var(--text);
+    flex: 1;
+  }
+
+  .source-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 3px 7px;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .source-Indeed  { background: #1a2a1a; color: #60c060; border: 1px solid #2a3a2a; }
+  .source-Linkedin { background: #1a1e2a; color: #6090e0; border: 1px solid #2a2e3a; }
+  .source-WTTJ   { background: #2a1a1a; color: #e06060; border: 1px solid #3a2a2a; }
+  .source-Glassdoor { background: #1a1a2a; color: #a060e0; border: 1px solid #2a2a3a; }
+
+  .card-company {
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .card-company::before { content: '◆'; font-size: 6px; color: var(--accent); }
+
+  .card-desc {
+    font-size: 12px;
+    color: #888;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    gap: 8px;
+    margin-top: auto;
+  }
+
+  /* ── LIST VIEW ── */
+  .jobs-list { display: flex; flex-direction: column; gap: 2px; }
+
+  .list-row {
+    display: grid;
+    grid-template-columns: 1fr 180px 90px 80px 120px;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    transition: all 0.15s;
+    background: var(--surface);
+  }
+
+  .list-row:hover { border-color: var(--border); background: var(--surface2); }
+  .list-row.applied { opacity: 0.55; border-left: 2px solid var(--applied); }
+
+  .list-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 15px;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .list-company {
+    font-size: 13px;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .list-header {
+    display: grid;
+    grid-template-columns: 1fr 180px 90px 80px 120px;
+    gap: 16px;
+    padding: 8px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  /* ── SHARED ── */
+  .contrat-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 3px 7px;
+    border-radius: 4px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .card-actions { display: flex; gap: 6px; }
+
+  .btn-link {
+    font-size: 11px;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    transition: all 0.15s;
+    font-family: 'DM Mono', monospace;
+    white-space: nowrap;
+  }
+
+  .btn-link:hover { color: var(--accent); border-color: var(--accent); }
+
+  .btn-apply {
+    font-size: 11px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    transition: all 0.15s;
+    background: transparent;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .btn-apply:hover { border-color: var(--applied); color: var(--applied); }
+  .btn-apply.applied-btn { background: #0d2a1e; border-color: var(--applied); color: var(--applied); }
+
+  /* ── MISC ── */
+  .empty {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--muted);
+  }
+
+  .empty h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px;
+    margin-bottom: 12px;
+    color: var(--surface2);
+  }
+
+  .loading {
+    text-align: center;
+    padding: 80px;
+    font-family: 'DM Mono', monospace;
+    color: var(--muted);
+    font-size: 13px;
+    letter-spacing: 2px;
+  }
+
+  .loading::after {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 2px;
+    background: var(--accent);
+    margin: 16px auto 0;
+    animation: load 1s ease-in-out infinite alternate;
+  }
+
+  @keyframes load { from { width: 20px; } to { width: 60px; } }
+
+  .config-banner {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    margin: 24px 40px;
+    padding: 16px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .config-banner code {
+    font-family: 'DM Mono', monospace;
+    background: var(--surface2);
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: var(--accent);
+    font-size: 12px;
+  }
+
+  .config-banner input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    width: 100%;
+    margin-top: 8px;
+    outline: none;
+  }
+
+  .config-banner input:focus { border-color: var(--accent); }
+
+  .btn-load {
+    margin-top: 10px;
+    background: var(--accent);
+    color: #0e0e0f;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    transition: opacity 0.2s;
+  }
+
+  .btn-load:hover { opacity: 0.85; }
+  .error-msg { color: var(--accent2); font-size: 12px; margin-top: 8px; font-family: 'DM Mono', monospace; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Job Board <span>DESIGN × MOTION</span></div>
+  <div class="stats">
+    <div><strong id="stat-total">—</strong>offres total</div>
+    <div><strong id="stat-new">—</strong>nouvelles</div>
+    <div><strong id="stat-applied">—</strong>postulé</div>
+  </div>
+</header>
+
+<div class="config-banner" id="config-banner">
+  ⚙️ <strong>Configuration :</strong> Entre l'URL raw de ton CSV GitHub pour charger tes offres.<br>
+  Va sur ton repo GitHub → <code>offres_emploi.csv</code> → bouton <code>Raw</code> → copie l'URL
+  <input type="text" id="csv-url" placeholder="https://raw.githubusercontent.com/CroustiPote/job-scraper/main/offres_emploi.csv">
+  <div style="display:flex;gap:10px;align-items:center;margin-top:10px;">
+    <button class="btn-load" onclick="loadFromUrl()">Charger les offres →</button>
+    <span id="url-error" class="error-msg"></span>
+  </div>
+</div>
+
+<div class="controls" id="controls" style="display:none">
+  <div class="search-wrap">
+    <input type="text" id="search" placeholder="Chercher un poste, une entreprise..." oninput="render()">
+  </div>
+  <button class="filter-btn active" onclick="setFilter('all', this)">Toutes</button>
+  <button class="filter-btn" onclick="setFilter('new', this)">Nouvelles</button>
+  <button class="filter-btn" onclick="setFilter('applied', this)">✓ Postulé</button>
+  <button class="filter-btn" onclick="setFilter('Indeed', this)">Indeed</button>
+  <button class="filter-btn" onclick="setFilter('Linkedin', this)">LinkedIn</button>
+  <button class="filter-btn" onclick="reloadCSV()" title="Actualiser">↻</button>
+  <div class="view-toggle">
+    <button class="view-btn active" id="btn-grid" onclick="setView('grid')" title="Vue cartes">⊞</button>
+    <button class="view-btn" id="btn-list" onclick="setView('list')" title="Vue liste">☰</button>
+  </div>
+</div>
+
+<div class="container" id="app">
+  <div class="loading">CHARGEMENT EN COURS</div>
+</div>
+
+<script>
+let allJobs = [];
+let currentFilter = 'all';
+let currentView = 'grid';
+let csvUrl = '';
+const APPLIED_KEY = 'jobboard_applied';
+const VIEW_KEY = 'jobboard_view';
+const URL_KEY = 'jobboard_csv_url';
+
+function getApplied() {
+  try { return new Set(JSON.parse(localStorage.getItem(APPLIED_KEY) || '[]')); }
+  catch { return new Set(); }
+}
+
+function toggleApplied(id) {
+  const applied = getApplied();
+  applied.has(id) ? applied.delete(id) : applied.add(id);
+  localStorage.setItem(APPLIED_KEY, JSON.stringify([...applied]));
+  render();
+}
+
+function setView(v) {
+  currentView = v;
+  localStorage.setItem(VIEW_KEY, v);
+  document.getElementById('btn-grid').classList.toggle('active', v === 'grid');
+  document.getElementById('btn-list').classList.toggle('active', v === 'list');
+  render();
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+  return lines.slice(1).map(line => {
+    const values = [];
+    let current = '', inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      if (line[i] === '"') { inQuotes = !inQuotes; }
+      else if (line[i] === ',' && !inQuotes) { values.push(current.trim()); current = ''; }
+      else { current += line[i]; }
+    }
+    values.push(current.trim());
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = (values[i] || '').replace(/^"|"$/g, ''));
+    return obj;
+  }).filter(j => j.titre && j.titre.trim());
+}
+
+async function loadFromUrl() {
+  const input = document.getElementById('csv-url').value.trim();
+  const errEl = document.getElementById('url-error');
+  errEl.textContent = '';
+  if (!input) { errEl.textContent = '⚠ Entre une URL'; return; }
+  csvUrl = input.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
+  localStorage.setItem(URL_KEY, csvUrl);
+  document.getElementById('csv-url').value = csvUrl;
+  await fetchAndRender();
+}
+
+async function reloadCSV() {
+  if (!csvUrl) return;
+  await fetchAndRender();
+}
+
+async function fetchAndRender() {
+  document.getElementById('app').innerHTML = '<div class="loading">CHARGEMENT EN COURS</div>';
+  try {
+    const r = await fetch(csvUrl + '?t=' + Date.now());
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const text = await r.text();
+    allJobs = parseCSV(text);
+    allJobs.sort((a, b) => (b.date_ajout || '').localeCompare(a.date_ajout || ''));
+    document.getElementById('config-banner').style.display = 'none';
+    document.getElementById('controls').style.display = 'flex';
+    render();
+  } catch(e) {
+    document.getElementById('url-error').textContent = `⚠ Erreur : ${e.message}`;
+    document.getElementById('app').innerHTML = '';
+  }
+}
+
+function setFilter(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function sourceBadge(src) {
+  return `<span class="source-badge source-${src}">${src}</span>`;
+}
+
+function actionBtns(job, isApplied) {
+  return `<div class="card-actions">
+    ${job.lien ? `<a href="${job.lien}" target="_blank" class="btn-link">Voir →</a>` : ''}
+    <button class="btn-apply ${isApplied ? 'applied-btn' : ''}" onclick="toggleApplied('${job.id}')">
+      ${isApplied ? '✓ Postulé' : 'Postuler'}
+    </button>
+  </div>`;
+}
+
+function render() {
+  const applied = getApplied();
+  const search = (document.getElementById('search')?.value || '').toLowerCase();
+  const today = new Date().toISOString().split('T')[0];
+
+  let filtered = allJobs.filter(j => {
+    const text = `${j.titre} ${j.entreprise} ${j.description_courte}`.toLowerCase();
+    if (search && !text.includes(search)) return false;
+    if (currentFilter === 'applied') return applied.has(j.id);
+    if (currentFilter === 'new') return j.date_ajout === today;
+    if (['Indeed', 'Linkedin', 'WTTJ'].includes(currentFilter)) return j.source === currentFilter;
+    return true;
+  });
+
+  document.getElementById('stat-total').textContent = allJobs.length;
+  document.getElementById('stat-new').textContent = allJobs.filter(j => j.date_ajout === today).length;
+  document.getElementById('stat-applied').textContent = applied.size;
+
+  const app = document.getElementById('app');
+
+  if (!filtered.length) {
+    app.innerHTML = `<div class="empty"><h2>Aucune offre</h2><p>Essaie d'autres filtres ou actualise.</p></div>`;
+    return;
+  }
+
+  const grouped = {};
+  filtered.forEach(j => {
+    const d = j.date_ajout || 'Date inconnue';
+    if (!grouped[d]) grouped[d] = [];
+    grouped[d].push(j);
+  });
+
+  const formatDate = d => {
+    if (!d || d === 'Date inconnue') return 'Date inconnue';
+    const [y, m, day] = d.split('-');
+    const months = ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Août','Sep','Oct','Nov','Déc'];
+    const isToday = d === today;
+    return `${day} ${months[m-1]} ${y}${isToday ? ' — Aujourd\'hui ✦' : ''}`;
+  };
+
+  if (currentView === 'grid') {
+    app.innerHTML = Object.entries(grouped).map(([d, jobs]) => `
+      <div class="date-section">
+        <div class="date-label">${formatDate(d)} — ${jobs.length} offre${jobs.length > 1 ? 's' : ''}</div>
+        <div class="jobs-grid">
+          ${jobs.map(j => {
+            const isApplied = applied.has(j.id);
+            const src = j.source || 'Autre';
+            return `<div class="card ${isApplied ? 'applied' : ''}">
+              <div class="card-header">
+                <div class="card-title">${j.titre}</div>
+                ${sourceBadge(src)}
+              </div>
+              <div class="card-company">${j.entreprise || 'Inconnue'}</div>
+              ${j.description_courte ? `<div class="card-desc">${j.description_courte}</div>` : ''}
+              <div class="card-footer">
+                <span class="contrat-tag">${j.contrat || 'CDI/CDD'}</span>
+                ${actionBtns(j, isApplied)}
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`).join('');
+  } else {
+    // LIST VIEW
+    app.innerHTML = Object.entries(grouped).map(([d, jobs]) => `
+      <div class="date-section">
+        <div class="date-label">${formatDate(d)} — ${jobs.length} offre${jobs.length > 1 ? 's' : ''}</div>
+        <div class="list-header">
+          <div>Poste</div>
+          <div>Entreprise</div>
+          <div>Contrat</div>
+          <div>Source</div>
+          <div>Actions</div>
+        </div>
+        <div class="jobs-list">
+          ${jobs.map(j => {
+            const isApplied = applied.has(j.id);
+            const src = j.source || 'Autre';
+            return `<div class="list-row ${isApplied ? 'applied' : ''}">
+              <div class="list-title" title="${j.titre}">${j.titre}</div>
+              <div class="list-company" title="${j.entreprise}">${j.entreprise || 'Inconnue'}</div>
+              <span class="contrat-tag">${j.contrat || 'CDI/CDD'}</span>
+              ${sourceBadge(src)}
+              ${actionBtns(j, isApplied)}
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`).join('');
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  currentView = localStorage.getItem(VIEW_KEY) || 'grid';
+  document.getElementById('btn-grid').classList.toggle('active', currentView === 'grid');
+  document.getElementById('btn-list').classList.toggle('active', currentView === 'list');
+
+  const saved = localStorage.getItem(URL_KEY);
+  if (saved) {
+    csvUrl = saved;
+    document.getElementById('csv-url').value = saved;
+    fetchAndRender();
+  } else {
+    document.getElementById('csv-url').value =
+      'https://raw.githubusercontent.com/CroustiPote/job-scraper/main/offres_emploi.csv';
+    document.getElementById('app').innerHTML = '';
+  }
+});
+</script>
+</body>
+</html>

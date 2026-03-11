@@ -35,11 +35,38 @@ CONFIG = {
         "infographiste",
         "after effects",
         "DA digital",
+        "designer graphique",
+        "visual designer",
+        "brand designer",
+        "identite visuelle",
+        "illustrateur",
+        "maquettiste",
+        "art director",
+        "designer print",
+        "motion graphics",
+        "animateur 2D",
     ],
 
     "exclude_keywords": [
+        # Contrats non voulus
         "stage", "stagiaire", "alternance", "alternant",
         "apprentissage", "apprenti", "intern", "internship",
+        # Commercial / Marketing
+        "commercial", "commerciale", "commerciaux",
+        "charge de marketing", "marketing manager", "chef de produit",
+        "account manager", "business developer", "ingenieur commercial",
+        "technico-commercial", "responsable marketing",
+        # Tech / IT
+        "developpeur", "programmeur", "ingenieur logiciel",
+        "data analyst", "scrum master", "devops",
+        # RH / Admin
+        "recruteur", "charge rh", "comptable",
+        "assistant administratif", "juriste", "office manager",
+        # Hors scope creatif
+        "photographe", "videaste", "cameraman",
+        "monteur video", "realisateur", "chef operateur",
+        # Regisseurs
+        "regisseur", "regisseure", "regisseurs",
     ],
 
     "location": "Paris, France",

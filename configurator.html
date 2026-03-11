@@ -558,6 +558,16 @@
       </div>
     </div>
 
+    <div class="field">
+      <label>Sources de recherche <span>sélectionne les plateformes</span></label>
+      <div class="radio-group" style="flex-wrap:wrap">
+        <div class="radio-card selected" id="src-indeed" onclick="toggleSource('indeed', this)" style="flex:none;min-width:auto"><div class="radio-dot"></div>Indeed</div>
+        <div class="radio-card selected" id="src-linkedin" onclick="toggleSource('linkedin', this)" style="flex:none;min-width:auto"><div class="radio-dot"></div>LinkedIn</div>
+        <div class="radio-card selected" id="src-google" onclick="toggleSource('google', this)" style="flex:none;min-width:auto"><div class="radio-dot"></div>Google Jobs</div>
+      </div>
+      <div class="field-hint">💡 Google Jobs agrège les annonces directement depuis les sites carrières des entreprises</div>
+    </div>
+
     <div class="nav-btns">
       <div></div>
       <button class="btn-next" onclick="goTo(2)">Suivant — Mots-clés →</button>
@@ -693,6 +703,7 @@ let config = {
   radius: '20',
   contract: 'CDI_CDD',
   days: '3',
+  sources: ['indeed', 'linkedin', 'google'],
 };
 
 // ── SUGGESTIONS PAR DOMAINE ──
@@ -730,6 +741,18 @@ function selectRadio(group, value, el) {
   wrap.querySelectorAll('.radio-card').forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
   config[group] = value;
+}
+
+// ── SOURCE TOGGLE ──
+function toggleSource(src, el) {
+  if (config.sources.includes(src)) {
+    if (config.sources.length === 1) return; // keep at least one
+    config.sources = config.sources.filter(s => s !== src);
+    el.classList.remove('selected');
+  } else {
+    config.sources.push(src);
+    el.classList.add('selected');
+  }
 }
 
 // ── TAG INPUT ──
@@ -818,6 +841,10 @@ function buildSummary() {
       <h4>📍 Localisation</h4>
       <div class="summary-val">${config.location}</div>
       <div style="font-size:13px;color:var(--muted);margin-top:4px">Rayon : ${config.radius} km · ${contractLabels[config.contract]}</div>
+    </div>
+    <div class="summary-card">
+      <h4>🔌 Sources</h4>
+      <div class="summary-tags">${config.sources.map(s => `<span class="summary-tag">${s}</span>`).join('')}</div>
     </div>
     <div class="summary-card">
       <h4>📅 Période</h4>
@@ -949,7 +976,7 @@ def scrape_jobspy(keyword, existing_ids):
     try:
         from jobspy import scrape_jobs
         results = scrape_jobs(
-            site_name=["indeed", "linkedin"],
+            site_name=[${config.sources.map(s => `"${s}"`).join(", ")}],
             search_term=keyword,
             location=CONFIG["location"],
             results_wanted=25,

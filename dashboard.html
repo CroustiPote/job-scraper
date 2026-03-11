@@ -290,9 +290,11 @@
 
   [data-theme="dark"] .source-Indeed   { background: #1a2a1a; color: #60c060; border: 1px solid #2a3a2a; }
   [data-theme="dark"] .source-Linkedin { background: #1a1e2a; color: #6090e0; border: 1px solid #2a2e3a; }
+  [data-theme="dark"] .source-Google   { background: #1a2a2a; color: #60d0d0; border: 1px solid #2a3a3a; }
 
   [data-theme="light"] .source-Indeed   { background: #e8f5e8; color: #1a7a1a; border: 1px solid #b8ddb8; }
   [data-theme="light"] .source-Linkedin { background: #e8eef8; color: #1a4aaa; border: 1px solid #b8cce8; }
+  [data-theme="light"] .source-Google   { background: #e8f8f8; color: #0a7a7a; border: 1px solid #b8e8e8; }
 
   .card-company {
     font-size: 13px;
@@ -591,6 +593,7 @@
   <button class="filter-btn" onclick="setFilter('applied', this)">✓ Postulé</button>
   <button class="filter-btn" onclick="setFilter('Indeed', this)">Indeed</button>
   <button class="filter-btn" onclick="setFilter('Linkedin', this)">LinkedIn</button>
+  <button class="filter-btn" onclick="setFilter('Google', this)">Google</button>
   <button class="filter-btn" onclick="reloadCSV()" title="Actualiser">↻</button>
   <div class="view-toggle">
     <button class="view-btn active" id="btn-grid" onclick="setView('grid')" title="Vue cartes">⊞</button>
@@ -771,7 +774,7 @@ function render() {
     if (search && !text.includes(search)) return false;
     if (currentFilter === 'applied') return applied.has(j.id);
     if (currentFilter === 'new') return j.date_ajout === today;
-    if (['Indeed', 'Linkedin'].includes(currentFilter)) return j.source === currentFilter;
+    if (['Indeed', 'Linkedin', 'Google'].includes(currentFilter)) return j.source === currentFilter;
     return true;
   });
 

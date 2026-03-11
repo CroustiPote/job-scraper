@@ -170,7 +170,8 @@ def scrape_jobspy(keyword, existing_ids):
             job_type = str(row.get("job_type", "") or "")
             desc     = str(row.get("description", "") or "")
             link     = str(row.get("job_url", "") or "")
-            source   = str(row.get("site", "") or "").capitalize()
+            source_raw = str(row.get("site", "") or "")
+            source = {"indeed": "Indeed", "linkedin": "Linkedin", "google": "Google"}.get(source_raw.lower(), source_raw.capitalize())
 
             if is_excluded(title + " " + job_type + " " + desc[:300]):
                 continue

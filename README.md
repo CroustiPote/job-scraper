@@ -19,6 +19,12 @@ Script Python qui collecte automatiquement chaque matin les offres CDI/CDD sur *
 
 👉 **[Ouvrir le dashboard](https://croustipote.github.io/job-scraper/dashboard.html)**
 
+## ⚙️ Configurer ton propre scraper
+
+👉 **[Ouvrir le configurateur](https://croustipote.github.io/job-scraper/configurator.html)**
+
+Remplis le formulaire en 3 minutes et télécharge ton script Python personnalisé — aucune connaissance technique requise.
+
 ---
 
 ## 🚀 Installation

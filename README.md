@@ -6,7 +6,7 @@ Script Python qui collecte automatiquement chaque matin les offres CDI/CDD sur *
 
 ## 📋 Ce que fait ce projet
 
-- 🔍 Scrape **Indeed** et **LinkedIn** chaque matin
+- 🔍 Scrape **Indeed**, **LinkedIn** et **Google Jobs** chaque matin
 - 🚫 Exclut automatiquement les **stages et alternances** (et tout ce que tu configures)
 - 🔁 **Déduplique** les offres déjà vues
 - 💾 Stocke tout dans un **CSV** consultable dans Excel / Google Sheets
@@ -84,6 +84,6 @@ Le workflow `.github/workflows/daily_scraper.yml` tourne automatiquement **du lu
 | `entreprise` | Nom de l'entreprise |
 | `lieu` | Ville |
 | `contrat` | CDI / CDD |
-| `source` | Indeed / Linkedin |
+| `source` | Indeed / Linkedin / Google |
 | `lien` | Lien direct vers l'offre |
 | `description_courte` | Extrait de la description |

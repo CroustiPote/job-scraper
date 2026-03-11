@@ -5,6 +5,9 @@ on:
     - cron: "0 7 * * 1-5"   # 8h Paris (hiver) du lundi au vendredi
   workflow_dispatch:          # Lancement manuel possible depuis GitHub
 
+permissions:
+  contents: write             # nécessaire pour le git push final
+
 jobs:
   scrape:
     runs-on: ubuntu-latest

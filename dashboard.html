@@ -248,8 +248,24 @@
 
   .card:hover { border-color: var(--accent); transform: translateY(-2px); }
   .card:hover::before { transform: scaleX(1); }
-  .card.applied { border-color: var(--applied); opacity: 0.65; }
+  .card.applied { border-color: var(--applied); background: color-mix(in srgb, var(--applied) 5%, var(--surface)); }
   .card.applied::before { background: var(--applied); transform: scaleX(1); }
+  .card.applied .card-title { text-decoration: line-through; opacity: 0.5; }
+  .card.applied .card-company { opacity: 0.5; }
+  .card.applied .card-desc { opacity: 0.4; }
+  .card.applied::after {
+    content: '✓ Postulé';
+    position: absolute;
+    top: 12px; right: 12px;
+    background: var(--applied);
+    color: #0a2a1a;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+  }
 
   .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
 
@@ -262,6 +278,8 @@
   }
 
   .source-badge {
+    position: relative;
+    z-index: 1;
     font-family: 'DM Mono', monospace;
     font-size: 10px;
     padding: 3px 7px;
@@ -335,7 +353,15 @@
   }
 
   .list-row:hover { border-color: var(--border); background: var(--surface2); }
-  .list-row.applied { opacity: 0.55; border-left: 2px solid var(--applied); }
+  .list-row.applied { 
+    border-left: 3px solid var(--applied); 
+    background: color-mix(in srgb, var(--applied) 5%, var(--surface));
+  }
+  .list-row.applied .list-title { 
+    text-decoration: line-through; 
+    opacity: 0.45;
+  }
+  .list-row.applied .list-company { opacity: 0.45; }
 
   .list-title {
     font-family: 'DM Serif Display', serif;

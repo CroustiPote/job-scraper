@@ -64,9 +64,15 @@ CONFIG = {
         "assistant administratif", "juriste", "office manager",
         # Hors scope creatif
         "photographe", "videaste", "cameraman",
-        "monteur video", "realisateur", "chef operateur", "chef de projet", "directeur engineering", "directeur adjoint", "territorial",
+        "monteur video", "realisateur", "chef operateur",
         # Regisseurs
         "regisseur", "regisseure", "regisseurs",
+    ],
+
+    # Mots exclus sur le TITRE uniquement (pas la description)
+    "exclude_title_keywords": [
+        "engineering", "data", "vendeur", "vendeuse",
+        "responsable boutique", "charge de projet",
     ],
 
     "location": "Paris, France",
@@ -109,6 +115,10 @@ def is_excluded(text):
     t = text.lower()
     return any(kw in t for kw in CONFIG["exclude_keywords"])
 
+def is_title_excluded(title):
+    t = title.lower()
+    return any(kw in t for kw in CONFIG["exclude_title_keywords"])
+
 def save_jobs(jobs, csv_file):
     fieldnames = ["id", "date_ajout", "titre", "entreprise", "lieu",
                   "contrat", "source", "lien", "description_courte"]
@@ -142,7 +152,7 @@ def scrape_jobspy(keyword, existing_ids):
     try:
         from jobspy import scrape_jobs
         results = scrape_jobs(
-            site_name=["indeed", "linkedin", "google"],
+            site_name=["indeed", "linkedin"],
             search_term=keyword,
             location="Paris, France",
             results_wanted=20,
@@ -163,6 +173,8 @@ def scrape_jobspy(keyword, existing_ids):
             source   = str(row.get("site", "") or "").capitalize()
 
             if is_excluded(title + " " + job_type + " " + desc[:300]):
+                continue
+            if is_title_excluded(title):
                 continue
 
             job_id = generate_id(title, company)

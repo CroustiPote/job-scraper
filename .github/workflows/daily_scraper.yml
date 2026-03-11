@@ -1,0 +1,33 @@
+name: 🎨 Job Scraper — Design & Motion Paris
+
+on:
+  schedule:
+    - cron: "0 7 * * 1-5"   # 8h Paris (hiver) du lundi au vendredi
+  workflow_dispatch:          # Lancement manuel possible depuis GitHub
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 📦 Install dependencies
+        run: pip install python-jobspy requests beautifulsoup4 lxml feedparser
+
+      - name: 🚀 Run scraper
+        run: python job_scraper.py
+
+      - name: 💾 Commit updated CSV
+        run: |
+          git config --global user.name "Job Scraper Bot"
+          git config --global user.email "bot@noreply.github.com"
+          git add offres_emploi.csv
+          git diff --staged --quiet || git commit -m "🤖 Offres du $(date +'%d/%m/%Y')"
+          git push

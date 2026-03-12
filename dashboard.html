@@ -582,6 +582,15 @@
     <button class="btn-load" onclick="loadFromUrl()">Charger les offres →</button>
     <span id="url-error" class="error-msg"></span>
   </div>
+  <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+    <label style="font-size:12px;font-weight:500;display:block;margin-bottom:6px;">🔑 Token GitHub <span style="font-weight:300;color:var(--muted)">(pour activer la suppression depuis le dashboard)</span></label>
+    <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" style="font-size:12px">
+    <div style="font-size:11px;color:var(--muted);margin-top:6px">
+      Crée un token sur <strong>github.com/settings/tokens</strong> avec le scope <code>repo</code>. Il est stocké uniquement dans ton navigateur.
+    </div>
+    <button class="btn-load" onclick="saveToken()" style="margin-top:8px;background:var(--surface2);color:var(--text);border:1px solid var(--border)">Sauvegarder le token</button>
+    <span id="token-status" style="font-size:11px;color:var(--applied);margin-left:10px;font-family:monospace"></span>
+  </div>
 </div>
 
 <div class="controls" id="controls" style="display:none">
@@ -624,6 +633,10 @@ const DELETED_KEY  = 'jobboard_deleted';
 const VIEW_KEY     = 'jobboard_view';
 const THEME_KEY    = 'jobboard_theme';
 const URL_KEY      = 'jobboard_csv_url';
+const TOKEN_KEY    = 'jobboard_gh_token';
+const REPO_OWNER   = 'CroustiPote';
+const REPO_NAME    = 'job-scraper';
+const CSV_PATH     = 'offres_emploi.csv';
 
 // ── STORAGE HELPERS ──
 function getApplied() {
@@ -636,6 +649,71 @@ function saveDeleted(set) {
   localStorage.setItem(DELETED_KEY, JSON.stringify([...set]));
 }
 
+// ── TOKEN ──
+function getToken() {
+  return localStorage.getItem(TOKEN_KEY) || '';
+}
+
+function saveToken() {
+  const val = document.getElementById('gh-token').value.trim();
+  if (!val) return;
+  localStorage.setItem(TOKEN_KEY, val);
+  document.getElementById('token-status').textContent = '✓ Token sauvegardé';
+  setTimeout(() => document.getElementById('token-status').textContent = '', 2000);
+}
+
+// ── GITHUB API — update CSV ──
+async function updateCSVOnGitHub(newJobs) {
+  const token = getToken();
+  if (!token) return false;
+
+  try {
+    // 1. Get current file SHA
+    const metaRes = await fetch(
+      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${CSV_PATH}`,
+      { headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' } }
+    );
+    if (!metaRes.ok) { console.error('GitHub API error:', metaRes.status); return false; }
+    const meta = await metaRes.json();
+    const sha = meta.sha;
+
+    // 2. Build new CSV content
+    const headers = ['id','date_ajout','titre','entreprise','lieu','contrat','source','lien','description_courte'];
+    const rows = [headers.join(',')];
+    newJobs.forEach(j => {
+      const row = headers.map(h => {
+        const val = (j[h] || '').toString().replace(/"/g, '""');
+        return val.includes(',') || val.includes('"') || val.includes('\n') ? `"${val}"` : val;
+      });
+      rows.push(row.join(','));
+    });
+    const csvContent = rows.join('\n');
+    const encoded = btoa(unescape(encodeURIComponent(csvContent)));
+
+    // 3. Push update
+    const updateRes = await fetch(
+      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${CSV_PATH}`,
+      {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/vnd.github+json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: '🗑️ Suppression offre via dashboard',
+          content: encoded,
+          sha: sha,
+        }),
+      }
+    );
+    return updateRes.ok;
+  } catch(e) {
+    console.error('GitHub API error:', e);
+    return false;
+  }
+}
+
 // ── ACTIONS ──
 function toggleApplied(id) {
   const applied = getApplied();
@@ -644,29 +722,51 @@ function toggleApplied(id) {
   render();
 }
 
-function deleteJob(id, title) {
+async function deleteJob(id, title) {
+  // Remove from local array
+  lastDeleted = { id, job: allJobs.find(j => j.id === id) };
+  allJobs = allJobs.filter(j => j.id !== id);
+
+  // Also track in localStorage for persistence across reloads
   const deleted = getDeleted();
   deleted.add(id);
   saveDeleted(deleted);
-  lastDeleted = id;
 
   // Toast
   document.getElementById('deleted-msg').textContent = `"${title.slice(0, 40)}${title.length > 40 ? '…' : ''}" supprimée`;
   const banner = document.getElementById('deleted-banner');
   banner.classList.add('show');
   clearTimeout(undoTimer);
-  undoTimer = setTimeout(() => { banner.classList.remove('show'); lastDeleted = null; }, 5000);
+  undoTimer = setTimeout(async () => {
+    banner.classList.remove('show');
+    // Commit deletion to GitHub after 5s (if not undone)
+    if (getToken()) {
+      const ok = await updateCSVOnGitHub(allJobs);
+      if (ok) console.log('✅ CSV mis à jour sur GitHub');
+      else console.warn('⚠️ Impossible de mettre à jour GitHub');
+    }
+    lastDeleted = null;
+  }, 5000);
   render();
 }
 
 function undoDelete() {
   if (!lastDeleted) return;
+  clearTimeout(undoTimer);
+
+  // Restore job in allJobs
+  if (lastDeleted.job) {
+    allJobs.push(lastDeleted.job);
+    allJobs.sort((a, b) => (b.date_ajout || '').localeCompare(a.date_ajout || ''));
+  }
+
+  // Remove from deleted set
   const deleted = getDeleted();
-  deleted.delete(lastDeleted);
+  deleted.delete(lastDeleted.id);
   saveDeleted(deleted);
+
   lastDeleted = null;
   document.getElementById('deleted-banner').classList.remove('show');
-  clearTimeout(undoTimer);
   render();
 }
 
@@ -857,6 +957,13 @@ window.addEventListener('DOMContentLoaded', () => {
   currentView = localStorage.getItem(VIEW_KEY) || 'grid';
   document.getElementById('btn-grid').classList.toggle('active', currentView === 'grid');
   document.getElementById('btn-list').classList.toggle('active', currentView === 'list');
+
+  // Restore token
+  const savedToken = localStorage.getItem(TOKEN_KEY);
+  if (savedToken) {
+    document.getElementById('gh-token').value = savedToken;
+    document.getElementById('token-status').textContent = '✓ Token actif';
+  }
 
   const saved = localStorage.getItem(URL_KEY);
   if (saved) {
